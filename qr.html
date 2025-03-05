@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code</title>
+    <link rel="stylesheet" href="qr.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Please scan the QRIS</h1>
+        <img id="qr-image" src="" alt="QR Code">
+        <button id="cancel-button">Cancel Payment</button>
+    </div>
+    <script>
+        const qrisUrl = new URLSearchParams(window.location.search).get('qris_url');
+        document.getElementById('qr-image').src = qrisUrl;
+
+        document.getElementById('cancel-button').addEventListener('click', () => {
+            window.electronAPI.cancelPayment();
+        });
+    </script>
+</body>
+</html>
