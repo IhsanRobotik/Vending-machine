@@ -17,7 +17,6 @@ const product = {
 
 let mainWindow;
 let transactionId = uuidv4();
-console.log(transactionId);
 
 require('dotenv').config();
 const authorization = process.env.MIDTRANS_API_AUTH;
@@ -28,6 +27,14 @@ const headers = {
 };
 
 const createPayment = async (input) => {
+  if (!product.hasOwnProperty(input)) {
+    console.log('No valid product chosen.');
+    mainWindow.loadFile('./html/noProduct.html');
+    await wait(2500);
+    mainWindow.loadFile('./html/index.html');
+    return
+  }
+
   const payload = {
     "transaction_details": {
       "order_id": transactionId,
@@ -110,44 +117,31 @@ const monitorPaymentStatus = async () => {
     isCancelled = true;
   });
 
-  // ipcMain.once(paymentStatus === undefined, () => {
-  //   cancelPayment();
-  // });
-
-  while (paymentStatus !== settlement && !isCancelled && paymentStatus !== undefined) {
+  while (paymentStatus !== settlement && !isCancelled) {
     const statusResponse = await checkPaymentStatus();
     paymentStatus = statusResponse.transaction_status;
     console.log('Payment status:', paymentStatus);
-    await wait(1000); // Wait for 1 second before checking again
+    await wait(2500); 
   }
 
   if (isCancelled) {
     console.log('Payment cancelled.');
-    await wait(2500);
     mainWindow.loadFile('./html/cancelled.html');
     await wait(2500);
     generateNewPayment();
-
-  } else if (paymentStatus === undefined) {
-    console.log('No valid product chosen.');
-    mainWindow.loadFile('./html/noProduct.html');
-    await wait(2500);
-    generateNewPayment();
-
-  }else {
+    mainWindow.loadFile('./html/index.html');
+  } else {
     console.log('Payment settled.');
     mainWindow.loadFile('./html/success.html'); // Load the success.html file when payment is settled
-
-    // Wait for a few seconds before resetting the application
     await wait(2500);
     generateNewPayment();
+    mainWindow.loadFile('./html/index.html');
   }
 };
 
 function generateNewPayment() {
   transactionId = uuidv4();
   console.log('New transaction ID:', transactionId);
-  mainWindow.loadFile('./html/index.html');
 }
 
 function createWindow() {

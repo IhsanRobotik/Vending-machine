@@ -22,6 +22,11 @@ body {
     max-width: 400px; /* Prevent it from stretching too much */
 }
 
+h1 {
+    color: white;
+    margin-bottom: 15px;
+}
+
 #display {
     width: 100%; /* Make it fully responsive */
     height: 70px;
