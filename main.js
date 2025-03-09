@@ -3,6 +3,17 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
+const product = {
+  '1': 10000,
+  '2': 20000,
+  '3': 30000,
+  '4': 40000,
+  '5': 50000,
+  '6': 60000,
+  '7': 70000,
+  '8': 80000,
+  '9': 90000,
+};
 
 let mainWindow;
 let transactionId = uuidv4();
@@ -20,7 +31,7 @@ const createPayment = async (input) => {
   const payload = {
     "transaction_details": {
       "order_id": transactionId,
-      "gross_amount": input
+      "gross_amount": product[input]
     },
     "merchantId": "G536748043",
     "payment_type": "qris"
@@ -35,7 +46,7 @@ const createPayment = async (input) => {
     console.log(qris_url);
 
     // Load the qris_url in the main window
-    mainWindow.loadURL(`file://${path.join(__dirname, 'qr.html')}?qris_url=${encodeURIComponent(qris_url)}`);
+    mainWindow.loadURL(`file://${__dirname}/html/qr.html?qris_url=${encodeURIComponent(qris_url)}`);
 
   } catch (error) {
     if (error.response) {
@@ -99,7 +110,11 @@ const monitorPaymentStatus = async () => {
     isCancelled = true;
   });
 
-  while (paymentStatus !== settlement && !isCancelled) {
+  // ipcMain.once(paymentStatus === undefined, () => {
+  //   cancelPayment();
+  // });
+
+  while (paymentStatus !== settlement && !isCancelled && paymentStatus !== undefined) {
     const statusResponse = await checkPaymentStatus();
     paymentStatus = statusResponse.transaction_status;
     console.log('Payment status:', paymentStatus);
@@ -108,20 +123,32 @@ const monitorPaymentStatus = async () => {
 
   if (isCancelled) {
     console.log('Payment cancelled.');
-    mainWindow.loadFile('index.html');
-  } else {
+    await wait(2500);
+    mainWindow.loadFile('./html/cancelled.html');
+    await wait(2500);
+    generateNewPayment();
+
+  } else if (paymentStatus === undefined) {
+    console.log('No valid product chosen.');
+    mainWindow.loadFile('./html/noProduct.html');
+    await wait(2500);
+    generateNewPayment();
+
+  }else {
     console.log('Payment settled.');
-    mainWindow.loadFile('success.html'); // Load the success.html file when payment is settled
+    mainWindow.loadFile('./html/success.html'); // Load the success.html file when payment is settled
 
     // Wait for a few seconds before resetting the application
-    await wait(5000);
-
-    // Generate a new transaction ID and reload the initial content
-    transactionId = uuidv4();
-    console.log('New transaction ID:', transactionId);
-    mainWindow.loadFile('index.html');
+    await wait(2500);
+    generateNewPayment();
   }
 };
+
+function generateNewPayment() {
+  transactionId = uuidv4();
+  console.log('New transaction ID:', transactionId);
+  mainWindow.loadFile('./html/index.html');
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -132,7 +159,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadFile('index.html');
+  mainWindow.loadFile('./html/index.html');
 }
 
 app.whenReady().then(createWindow);
@@ -157,5 +184,5 @@ ipcMain.on('log-input', (event, input) => {
 ipcMain.on('cancel-payment', async () => {
   console.log('Cancel payment requested');
   await cancelPayment();
-  mainWindow.loadFile('index.html');
+  // mainWindow.loadFile('index.html');
 });
