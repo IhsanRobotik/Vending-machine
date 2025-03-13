@@ -1,5 +1,4 @@
 //this code uses core api instead of snap
-const { spawn } = require('child_process');
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const axios = require('axios');
@@ -99,31 +98,6 @@ const checkPaymentStatus = async () => {
   }
 };
 
-// Run a Python script and return output
-function runPythonScript(scriptPath, args) {
-
-  // Use child_process.spawn method from 
-  // child_process module and assign it to variable
-  const pyProg = spawn('python', [scriptPath].concat(args));
-
-  // Collect data from script and print to console
-  let data = '';
-  pyProg.stdout.on('data', (stdout) => {
-    data += stdout.toString();
-  });
-
-  // Print errors to console, if any
-  pyProg.stderr.on('data', (stderr) => {
-    console.log(`stderr: ${stderr}`);
-  });
-
-  // When script is finished, print collected data
-  pyProg.on('close', (code) => {
-    console.log(`child process exited with code ${code}`);
-    console.log(data);
-  });
-}
-
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const monitorPaymentStatus = async () => {
@@ -139,36 +113,32 @@ const monitorPaymentStatus = async () => {
     const statusResponse = await checkPaymentStatus();
     paymentStatus = statusResponse.transaction_status;
     console.log('Payment status:', paymentStatus);
-    
-    if (!isCancelled) {
-      for (let i = 0; i < 20; i++) { // Check every 100ms for a total of 5000ms
-        if (isCancelled) break;
-        await wait(100);
-      }
+    await wait(1000);
     }
-  }
 
-  if (isCancelled) {
-    console.log('Payment cancelled.');
-    mainWindow.loadFile('./html/cancelled.html');
-    await wait(2000);
-    cancelPayment();
-    generateNewPayment();
-    mainWindow.loadFile('./html/index.html');
-  } else if (paymentStatus === settlement) {
-    runPythonScript('./python/ass.py');
-    console.log('Payment settled.');
-    mainWindow.loadFile('./html/success.html'); 
-    await wait(2000);
-    generateNewPayment();
-    mainWindow.loadFile('./html/index.html');
-  } else {
-    console.log('Payment status is undefined.');
-    cancelPayment();
-    generateNewPayment();
+    if (paymentStatus !== settlement) {
+        for (let i = 0; i < 20; i++) { // Check every 100ms for a total of 5000ms
+            if (isCancelled) break;
+            await wait(100);
+        }
+    } else if (paymentStatus === settlement) {
+        console.log('Payment successful');
+        mainWindow.loadFile('./html/success.html');
 
-  }
-};
+    } else if (isCancelled) {
+        console.log('Payment cancelled.');
+        mainWindow.loadFile('./html/cancelled.html');
+        await wait(2000);
+        cancelPayment();
+        generateNewPayment();
+        mainWindow.loadFile('./html/index.html');
+        return;
+    } else {
+        console.log('Payment status is undefined.');
+        generateNewPayment();
+    }
+
+}
 
 function generateNewPayment() {
   transactionId = uuidv4();
