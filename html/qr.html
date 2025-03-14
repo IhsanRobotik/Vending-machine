@@ -9,12 +9,17 @@
 <body>
     <div class="container">
         <h1>Please scan the QRIS</h1>
+        <p id="product-info"></p>
         <img id="qr-image" src="" alt="QR Code">
         <button id="cancel-button">Cancel Payment</button>
     </div>
     <script>
-        const qrisUrl = new URLSearchParams(window.location.search).get('qris_url');
+        const urlParams = new URLSearchParams(window.location.search);
+        const qrisUrl = urlParams.get('qris_url');
+        const description = urlParams.get('description');
+        const price = urlParams.get('price');
         document.getElementById('qr-image').src = qrisUrl;
+        document.getElementById('product-info').textContent = `Product: ${description}, Price: ${price}`;
 
         document.getElementById('cancel-button').addEventListener('click', () => {
             window.electronAPI.cancelPayment();

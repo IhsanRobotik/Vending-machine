@@ -4,20 +4,13 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
-const product = {
-  '1': 10000,
-  '2': 20000,
-  '3': 30000,
-  '4': 40000,
-  '5': 50000,
-  '6': 60000,
-  '7': 70000,
-  '8': 80000,
-  '9': 90000,
-};
+const fs = require('fs');
 
 let mainWindow;
 let transactionId = uuidv4();
+
+const productFilePath = path.join(__dirname, 'products.json');
+let product = JSON.parse(fs.readFileSync(productFilePath, 'utf8'));
 
 require('dotenv').config();
 const authorization = process.env.MIDTRANS_API_AUTH;
@@ -31,7 +24,7 @@ const createPayment = async (input) => {
   const payload = {
     "transaction_details": {
       "order_id": transactionId,
-      "gross_amount": product[input]
+      "gross_amount": product[input].price
     },
     "merchantId": "G536748043",
     "payment_type": "qris"
@@ -43,10 +36,12 @@ const createPayment = async (input) => {
     const response = await axios.post(baseUrl, payload, { headers });
     console.log('Payment created successfully:', response.data);
     const qris_url = response.data.actions[0].url;
+    const description = product[input].description;
+    const price = product[input].price;
     console.log(qris_url);
 
-    // Load the qris_url in the main window
-    mainWindow.loadURL(`file://${__dirname}/html/qr.html?qris_url=${encodeURIComponent(qris_url)}`);
+    // Load the qris_url, description, and price in the main window
+    mainWindow.loadURL(`file://${__dirname}/html/qr.html?qris_url=${encodeURIComponent(qris_url)}&description=${encodeURIComponent(description)}&price=${encodeURIComponent(price)}`);
 
   } catch (error) {
     if (error.response) {
@@ -156,14 +151,14 @@ const monitorPaymentStatus = async () => {
     generateNewPayment();
     mainWindow.loadFile('./html/index.html');
   } else if (paymentStatus === settlement) {
-    runPythonScript('./python/ass.py');
+    runPythonScript('./python/ass.py', [100,23]);
     console.log('Payment settled.');
     mainWindow.loadFile('./html/success.html'); 
     await wait(2000);
     generateNewPayment();
     mainWindow.loadFile('./html/index.html');
   } else {
-    console.log('Payment status is undefined.');
+    console.log(paymentStatus);
     cancelPayment();
     generateNewPayment();
 
@@ -206,11 +201,39 @@ ipcMain.on('log-input', (event, input) => {
   console.log('Entered:', input);
   if (product[input]) {
     createPayment(input).then(() => monitorPaymentStatus());
-  } else {
+  } 
+  else {
     console.log('Invalid input:', input);
-    mainWindow.loadFile('./html/noProduct.html');
-    setTimeout(() => {
-      mainWindow.loadFile('./html/index.html');
-    }, 2000);
+    if (Number(input) === 69) {
+      console.log('Exiting application...');
+      app.quit();
+    }
+    if (Number(input) === 420) {
+      console.log('modifying product data...');
+      mainWindow.loadFile('./html/modify.html'); 
+    }
+    else{
+      mainWindow.loadFile('./html/noProduct.html');
+      setTimeout(() => {
+        mainWindow.loadFile('./html/index.html');
+      }, 2000);
+    }
   }
+});
+
+ipcMain.on('modify-product', (event, { id, description, price }) => {
+    if (product[id]) {
+        product[id].description = description;
+        product[id].price = parseInt(price, 10);
+        fs.writeFileSync(productFilePath, JSON.stringify(product, null, 2));
+        console.log(`Product ${id} modified successfully.`);
+        mainWindow.webContents.send('modification-success', `Product ${id} modified successfully.`);
+    } else {
+        console.log(`Product ${id} not found.`);
+        mainWindow.webContents.send('modification-failure', `Product ${id} not found.`);
+    }
+});
+
+ipcMain.on('exit-application', () => {
+  mainWindow.loadFile('./html/index.html');
 });

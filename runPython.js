@@ -26,4 +26,4 @@ function runPythonScript(scriptPath, args) {
 }
 
 // Run the Python file
-runPythonScript('./python/ass.py', [arg1, arg2]);
+runPythonScript('./python/ass.py', [89, 10]);

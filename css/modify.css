@@ -1,3 +1,4 @@
+/* filepath: c:\Users\ihsan\Documents\vending\tryUi\css\modify.css */
 body {
     display: flex;
     justify-content: center;
@@ -20,16 +21,28 @@ h1 {
     margin-bottom: 20px;
 }
 
-#qr-image {
-    width: 300px;
-    height: 300px;
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
-#cancel-button {
-    margin-top: 20px;
+label {
+    margin-top: 10px;
+}
+
+input {
+    margin-bottom: 10px;
+    padding: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+button {
+    margin-top: 10px;
     padding: 10px 20px;
     font-size: 16px;
-    background-color: rgb(255, 0, 0); /* Changed background color */
+    background-color: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
@@ -37,27 +50,14 @@ h1 {
     transition: background 0.3s;
 }
 
-#cancel-button:hover {
-    background-color: orange; /* Changed hover background color */
+button:hover {
+    background-color: #0056b3;
 }
 
-#cancel-button:focus {
-    background-color: red; /* Added focus background color */
+#exit-button {
+    background-color: #dc3545;
 }
 
-a {
-    color: orange;
-}
-
-a.button {
-    color: green;
-    text-decoration: none;
-}
-
-a:visited {
-    color: purple;
-}
-
-a:active {
-    color: blue;
+#exit-button:hover {
+    background-color: #a71d2a;
 }

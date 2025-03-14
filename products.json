@@ -1,0 +1,38 @@
+{
+  "1": {
+    "price": 10000,
+    "description": "Candy"
+  },
+  "2": {
+    "price": 90000,
+    "description": "test"
+  },
+  "3": {
+    "price": 3,
+    "description": "qda"
+  },
+  "4": {
+    "price": 40000,
+    "description": "Chocolate"
+  },
+  "5": {
+    "price": 103912,
+    "description": "niggeeer"
+  },
+  "6": {
+    "price": 60000,
+    "description": "Water"
+  },
+  "7": {
+    "price": 70000,
+    "description": "Soda"
+  },
+  "8": {
+    "price": 9090009,
+    "description": "asd"
+  },
+  "9": {
+    "price": 90000,
+    "description": "Gum"
+  }
+}
