@@ -11,7 +11,7 @@
         <h1>Modify Products</h1>
         <form id="modify-form">
             <label for="product-id">Product ID:</label>
-            <input type="text" id="product-id" required>
+            <input type="number" id="product-id" min="0" step="1" required>
             <label for="product-description">Description:</label>
             <input type="text" id="product-description" required>
             <label for="product-price">Price:</label>
@@ -22,6 +22,6 @@
             </div>
         </form>
     </div>
-    <script src="../js/modify.js"></script>
+    <script src="../modify.js"></script>
 </body>
 </html>

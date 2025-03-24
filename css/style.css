@@ -4,8 +4,8 @@ body {
     align-items: center;
     min-height: 100vh; /* Ensure it takes at least the full viewport height */
     width: 100vw;  /* Ensure it takes full viewport width */
-    background-color: #9e9e9e;
-    font-family: Arial, sans-serif;
+    background-color: #1c2833; /* Dark blue background */
+    font-family: 'Roboto', sans-serif;
     margin: 0;
     overflow: hidden; /* Prevent scrolling issues */
 }
@@ -14,7 +14,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: #000000;
+    background: #0969c9; /* Darker blue background for contrast */
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -23,7 +23,7 @@ body {
 }
 
 h1 {
-    color: white;
+    color: #ecf0f1; /* Light text color */
     margin-bottom: 15px;
     margin-top: 0px;
 }
@@ -34,9 +34,11 @@ h1 {
     font-size: 40px;
     text-align: right;
     padding: 0px;
-    border: 2px solid #ccc;
+    border: 2px solid #5d6d7e; /* Light border */
     border-radius: 5px;
     margin-bottom: 15px;
+    background-color: #ffffff; /* White background */
+    color: #1c2833; /* Dark text color */
 }
 
 .keypad {
@@ -50,30 +52,64 @@ h1 {
     width: 100%;
     height: 90px;
     font-size: 20px;
-    background: #007bff;
+    background: #1895e9; /* Blue background */
     color: white;
-    border: none;
+    /*border: 1px solid white; /* Thin white border */
     border-radius: 5px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: box-shadow 0.15s, transform 0.15s;
+    box-shadow: rgba(45, 35, 66, 0.4) 0 2px 4px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #1f618d 0 -3px 0 inset;
+}
+
+.key:focus {
+    box-shadow: #1f618d 0 0 0 1.5px inset, rgba(45, 35, 66, 0.4) 0 2px 4px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #1f618d 0 -3px 0 inset;
 }
 
 .key:hover {
-    background: #0056b3;
+    background: #1f618d; /* Darker blue on hover */
+    box-shadow: rgba(45, 35, 66, 0.4) 0 4px 8px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #1f618d 0 -3px 0 inset;
+    transform: translateY(-2px);
+}
+
+.key:active {
+    box-shadow: #1f618d 0 3px 7px inset;
+    transform: translateY(2px);
 }
 
 .clear {
-    background: #dc3545;
+    background: #e74c3c; /* Red background */
+}
+
+.clear:focus {
+    box-shadow: #c0392b 0 0 0 1.5px inset, rgba(45, 35, 66, 0.4) 0 2px 4px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #c0392b 0 -3px 0 inset;
 }
 
 .clear:hover {
-    background: #a71d2a;
+    background: #c0392b; /* Darker red on hover */
+    box-shadow: rgba(45, 35, 66, 0.4) 0 4px 8px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #c0392b 0 -3px 0 inset;
+    transform: translateY(-2px);
+}
+
+.clear:active {
+    box-shadow: #c0392b 0 3px 7px inset;
+    transform: translateY(2px);
 }
 
 .enter {
-    background: #28a745;
+    background: #2ecc71; /* Green background */
+}
+
+.enter:focus {
+    box-shadow: #27ae60 0 0 0 1.5px inset, rgba(45, 35, 66, 0.4) 0 2px 4px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #27ae60 0 -3px 0 inset;
 }
 
 .enter:hover {
-    background: #1e7e34;
+    background: #27ae60; /* Darker green on hover */
+    box-shadow: rgba(45, 35, 66, 0.4) 0 4px 8px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #27ae60 0 -3px 0 inset;
+    transform: translateY(-2px);
+}
+
+.enter:active {
+    box-shadow: #27ae60 0 3px 7px inset;
+    transform: translateY(2px);
 }

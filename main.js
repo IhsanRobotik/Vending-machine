@@ -26,6 +26,10 @@ const createPayment = async (input) => {
       "order_id": transactionId,
       "gross_amount": product[input].price
     },
+    "custom_expiry": {
+      "expiry_duration": 5,
+      "unit": "minute"
+    },
     "merchantId": "G536748043",
     "payment_type": "qris"
   };
@@ -124,44 +128,47 @@ const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const monitorPaymentStatus = async () => {
   let paymentStatus = null;
   const settlement = 'settlement';
+  const expire = 'expire';
   let isCancelled = false;
 
   ipcMain.once('cancel-payment', () => {
     isCancelled = true;
   });
 
-  while (paymentStatus !== settlement && !isCancelled) {
+  //skip wait logic
+  while (paymentStatus !== settlement && !isCancelled && paymentStatus !== expire) {
     const statusResponse = await checkPaymentStatus();
     paymentStatus = statusResponse.transaction_status;
     console.log('Payment status:', paymentStatus);
     
-    if (!isCancelled) {
-      for (let i = 0; i < 20; i++) { // Check every 100ms for a total of 5000ms
-        if (isCancelled) break;
+    if (!isCancelled && paymentStatus !== settlement && paymentStatus !== expire) {
+      for (let i = 0; i < 20; i++) { // Check every 100ms for a total of 2000ms
+        if (isCancelled || paymentStatus === settlement || paymentStatus === expire) break;
         await wait(100);
       }
     }
   }
 
   if (isCancelled) {
-    console.log('Payment cancelled.');
     mainWindow.loadFile('./html/cancelled.html');
-    await wait(2000);
     cancelPayment();
     generateNewPayment();
+    await wait(2000);
     mainWindow.loadFile('./html/index.html');
   } else if (paymentStatus === settlement) {
     runPythonScript('./python/ass.py', [100,23]);
-    console.log('Payment settled.');
     mainWindow.loadFile('./html/success.html'); 
-    await wait(2000);
     generateNewPayment();
+    await wait(2000);
     mainWindow.loadFile('./html/index.html');
+  } else if (paymentStatus === expire) { 
+    mainWindow.loadFile('./html/expired.html')
+    generateNewPayment();
+    await wait(2000);
+    mainWindow.loadFile('./html/index.html')
   } else {
-    console.log(paymentStatus);
     cancelPayment();
     generateNewPayment();
-
   }
 };
 
@@ -199,7 +206,7 @@ app.on('activate', () => {
 
 ipcMain.on('log-input', (event, input) => {
   console.log('Entered:', input);
-  if (product[input]) {
+  if (product[input] && product[input].price>0) {
     createPayment(input).then(() => monitorPaymentStatus());
   } 
   else {
