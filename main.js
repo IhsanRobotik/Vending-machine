@@ -179,8 +179,8 @@ function generateNewPayment() {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 600,
-    height: 1024,
+    width: 400,
+    height: 700,
     webPreferences: {
       preload: path.join(__dirname, 'renderer.js'),
     },
